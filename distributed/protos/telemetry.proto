@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package distributed;
+
+import "common.proto";
+
+message ClassProbability {
+    int32 class_id = 1;
+    string class_name = 2;
+    float probability = 3;
+}
+
+message PredictionResult {
+    string top_class = 1;
+    float top_probability = 2;
+    bool is_malignant = 3;
+    repeated ClassProbability probabilities = 4;
+    string image_reference = 5;
+}
+
+// Telemetria da Fonte 1: Estação de Dermatoscopia Digital com IA (Controlável)
+message DermatoscopyPayload {
+    float sensor_temperature_celsius = 1;
+    float led_intensity_lux = 2;
+    float battery_percent = 3;
+    uint32 total_examinations = 4;
+    PredictionResult latest_prediction = 5;
+}
+
+// Telemetria da Fonte 2: Sensor de Cabine UV / Fototerapia (Não Controlável)
+message UvChamberPayload {
+    float uva_intensity_mw_cm2 = 1;
+    float uvb_intensity_mw_cm2 = 2;
+    float ambient_temperature_celsius = 3;
+    float ambient_humidity_percent = 4;
+    bool safety_door_closed = 5;
+}
+
+// Telemetria da Fonte 3: Patch Dérmico Conectado (Disparo Imediato + Periódico)
+message PatchSensorPayload {
+    float lesion_temperature_celsius = 1;
+    float tissue_impedance_ohms = 2;
+    float hydration_percent = 3;
+    string alert_trigger = 4; // Motivo do alerta se for envio imediato (ex: "HIPERTERMIA_LOCAL_CRITICA")
+}
+
+// Mensagem Envelope enviada via UDP pelas fontes para o Gateway
+message TelemetryMessage {
+    MessageHeader header = 1;
+    bool is_immediate_alert = 2; // True se for disparo imediato por violação de limiar; False se for envio periódico
+    oneof payload {
+        DermatoscopyPayload dermatoscopy = 3;
+        UvChamberPayload uv_chamber = 4;
+        PatchSensorPayload patch_sensor = 5;
+    }
+}

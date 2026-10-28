@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package distributed;
+
+import "common.proto";
+
+message DiscoveryRequest {
+    string gateway_id = 1;
+    int64 timestamp_utc = 2;
+}
+
+message DiscoveryResponse {
+    string device_id = 1;
+    DeviceType device_type = 2;
+    string ip_address = 3;
+    int32 grpc_port = 4; // >0 se fonte controlável com servidor gRPC; 0 se não controlável
+    DeviceState initial_state = 5;
+    string firmware_version = 6;
+}

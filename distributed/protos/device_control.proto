@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package distributed;
+
+import "common.proto";
+
+enum ControlAction {
+    ACTION_UNSPECIFIED = 0;
+    ACTIVATE = 1;
+    DEACTIVATE = 2;
+    SET_SAMPLING_RATE = 3;
+    SET_ALERT_THRESHOLD = 4;
+    SIMULATE_FAULT = 5;
+    RESET = 6;
+}
+
+message DeviceConfigRequest {
+    string target_device_id = 1;
+    ControlAction action = 2;
+    float new_sampling_rate_seconds = 3;
+    float new_malignancy_threshold = 4;
+    string fault_simulation_mode = 5;
+}
+
+message DeviceConfigResponse {
+    bool success = 1;
+    string message = 2;
+    DeviceState current_state = 3;
+    float effective_sampling_rate = 4;
+    float effective_threshold = 5;
+}
+
+message DeviceStateRequest {
+    string device_id = 1;
+}
+
+message DeviceStateResponse {
+    string device_id = 1;
+    DeviceType device_type = 2;
+    DeviceState state = 3;
+    float sampling_rate_seconds = 4;
+    float alert_threshold = 5;
+    int64 uptime_seconds = 6;
+    uint32 total_messages_sent = 7;
+    string last_fault_reason = 8;
+}
+
+service DeviceControl {
+    rpc ConfigureDevice(DeviceConfigRequest) returns (DeviceConfigResponse);
+    rpc GetDeviceState(DeviceStateRequest) returns (DeviceStateResponse);
+}

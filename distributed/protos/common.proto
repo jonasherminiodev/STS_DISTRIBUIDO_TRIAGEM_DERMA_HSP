@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package distributed;
+
+enum DeviceType {
+    DEVICE_TYPE_UNSPECIFIED = 0;
+    DERMATOSCOPY_AI = 1;
+    UV_CHAMBER = 2;
+    PATCH_SENSOR = 3;
+}
+
+enum DeviceState {
+    STATE_UNSPECIFIED = 0;
+    STATE_ACTIVE = 1;
+    STATE_IDLE = 2;
+    STATE_DEGRADED = 3;
+    STATE_ERROR = 4;
+    STATE_OFFLINE = 5;
+}
+
+message MessageHeader {
+    string device_id = 1;
+    DeviceType device_type = 2;
+    int64 timestamp_utc = 3;
+    uint32 sequence_number = 4;
+}

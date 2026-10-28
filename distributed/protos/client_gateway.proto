@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package distributed;
+
+import "common.proto";
+import "device_control.proto";
+
+enum CommandType {
+    CMD_UNSPECIFIED = 0;
+    CMD_LIST_DEVICES = 1;
+    CMD_SEND_DEVICE_CONTROL = 2;
+    CMD_ANALYTICS_QUERY = 3;
+}
+
+enum AnalyticsType {
+    ANALYTICS_UNSPECIFIED = 0;
+    QUERY_1_MALIGNANCY_SUMMARY = 1;
+    QUERY_2_UV_CLIMATE_SUMMARY = 2;
+    QUERY_3_DEVICE_INCIDENTS_SUMMARY = 3;
+}
+
+message AnalyticsQueryRequest {
+    AnalyticsType query_type = 1;
+    int32 time_window_seconds = 2; // Janela de tempo em segundos (ex: 3600 = última hora)
+}
+
+// Envelope de Requisição enviado pelo Cliente via socket TCP para o Gateway
+message ClientRequest {
+    string request_id = 1;
+    CommandType command = 2;
+    string target_device_id = 3;
+    DeviceConfigRequest device_config = 4;
+    AnalyticsQueryRequest analytics_query = 5;
+}
+
+message DeviceInfo {
+    string device_id = 1;
+    DeviceType device_type = 2;
+    string ip_address = 3;
+    int32 grpc_port = 4;
+    DeviceState state = 5;
+    int64 last_seen_utc = 6;
+    uint32 total_telemetry_count = 7;
+    uint32 immediate_alert_count = 8;
+}
+
+// Consulta 1: Resumo de Triagem de Malignidade
+message MalignancyAnalyticsResult {
+    uint32 total_screenings = 1;
+    uint32 malignant_count = 2;
+    float malignancy_rate = 3; // Percentual de casos malignos (0.0 a 1.0)
+    float avg_confidence = 4;
+    map<string, uint32> class_distribution = 5; // Contagem por classe (Melanoma, Carcinoma, etc.)
+}
+
+// Consulta 2: Resumo de Radiação UV e Clima
+message UvClimateAnalyticsResult {
+    uint32 total_samples = 1;
+    float avg_uva = 2;
+    float std_dev_uva = 3;
+    float avg_uvb = 4;
+    float std_dev_uvb = 5;
+    float avg_temperature = 6;
+    float std_dev_temperature = 7;
+    float avg_humidity = 8;
+    float std_dev_humidity = 9;
+}
+
+// Consulta 3: Ranking de Incidentes e Instabilidade
+message DeviceIncidentItem {
+    string device_id = 1;
+    DeviceType device_type = 2;
+    uint32 immediate_alert_count = 3;
+    uint32 error_state_count = 4;
+    string last_incident_description = 5;
+}
+
+message IncidentsAnalyticsResult {
+    repeated DeviceIncidentItem devices_ranked = 1;
+    string most_unstable_device_id = 2;
+}
+
+message AnalyticsResponse {
+    AnalyticsType query_type = 1;
+    int32 time_window_seconds = 2;
+    oneof result {
+        MalignancyAnalyticsResult malignancy = 3;
+        UvClimateAnalyticsResult uv_climate = 4;
+        IncidentsAnalyticsResult incidents = 5;
+    }
+}
+
+enum ResponseStatus {
+    STATUS_OK = 0;
+    STATUS_ERROR = 1;
+    STATUS_DEVICE_NOT_FOUND = 2;
+    STATUS_TIMEOUT = 3;
+}
+
+// Envelope de Resposta enviado pelo Gateway via socket TCP para o Cliente
+message GatewayResponse {
+    string request_id = 1;
+    ResponseStatus status = 2;
+    string message = 3;
+    repeated DeviceInfo devices = 4;
+    DeviceConfigResponse config_response = 5;
+    AnalyticsResponse analytics = 6;
+}
