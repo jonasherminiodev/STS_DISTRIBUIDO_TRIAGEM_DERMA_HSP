@@ -1,0 +1,57 @@
+# Ambientes Virtuais (Virtual Environments)
+.venv/
+*/.venv/
+**/.venv/
+venv/
+*/venv/
+.venv_*/
+env/
+ENV/
+build/
+dist/
+
+# Modelos Pesados de Aprendizado Profundo (Pesos Keras / H5)
+*.h5
+*.keras
+*.pb
+*.hdf5
+tcc.h5
+**/tcc.h5
+
+# Bytecode e Caches do Python
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Banco de Dados e Arquivos de Execução em Tempo Real
+*.db
+*.sqlite3
+telemetry_history.db
+distributed/telemetry_history.db
+instance/*.db
+
+# Logs e Arquivos Temporários
+*.log
+*.tmp
+*.swp
+*~
+
+# Sistema Operacional (macOS, Windows, Linux)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Configurações de IDEs e Editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
